@@ -1,26 +1,126 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-    <title>Tap Game</title>
+    <meta charset="UTF-8">
+    <title>🔥 Tap Game</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
-        body { text-align: center; font-family: sans-serif; background: #222; color: #fff; }
-        button { font-size: 24px; padding: 20px; margin-top: 100px; }
+        body {
+            background: linear-gradient(to bottom right, #1e1e2f, #2e2e4f);
+            color: #fff;
+            font-family: 'Segoe UI', sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            margin-top: 30px;
+            font-size: 32px;
+        }
+        #score {
+            font-size: 28px;
+            margin: 20px 0;
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 20px;
+            border: none;
+            border-radius: 12px;
+            background: #28a745;
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        button:hover {
+            background: #218838;
+        }
+        .store {
+            margin-top: 30px;
+            padding: 15px;
+            background: #222;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .upgrade {
+            margin: 10px 0;
+        }
+        .upgrade button {
+            background: #007bff;
+            font-size: 16px;
+        }
     </style>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-    <h1>👆 Tap Game</h1>
-    <p id="score">Score: 0</p>
-    <button onclick="tap()">Tap me!</button>
+    <h1>🔥 Tap Game</h1>
+    <p id="score">Очки: 0</p>
+    <button onclick="tap()">Тапни меня!</button>
+
+    <div class="store">
+        <h2>🛒 Магазин</h2>
+        <div class="upgrade">
+            <p>×2 за тап (цена: <span id="costDouble">50</span>)</p>
+            <button onclick="buyDouble()">Купить</button>
+        </div>
+        <div class="upgrade">
+            <p>+5% авто (цена: <span id="costAuto">100</span>)</p>
+            <button onclick="buyAuto()">Купить</button>
+        </div>
+    </div>
 
     <script>
         let score = 0;
+        let tapPower = 1;
+        let autoActive = false;
+        let costDouble = 50;
+        let costAuto = 100;
+
+        const scoreElem = document.getElementById("score");
+        const costDoubleElem = document.getElementById("costDouble");
+        const costAutoElem = document.getElementById("costAuto");
+
+        function updateScore() {
+            scoreElem.innerText = "Очки: " + Math.floor(score);
+        }
+
         function tap() {
-            score++;
-            document.getElementById("score").innerText = "Score: " + score;
+            score += tapPower;
+            updateScore();
+        }
+
+        function buyDouble() {
+            if (score >= costDouble) {
+                score -= costDouble;
+                tapPower *= 2;
+                costDouble = Math.floor(costDouble * 2);
+                costDoubleElem.innerText = costDouble;
+                updateScore();
+            } else {
+                alert("Не хватает очков!");
+            }
+        }
+
+        function buyAuto() {
+            if (autoActive) return alert("Уже активно!");
+            if (score >= costAuto) {
+                score -= costAuto;
+                autoActive = true;
+                setInterval(() => {
+                    score += score * 0.05; // +5%
+                    updateScore();
+                }, 3000);
+                costAutoElem.innerText = "—";
+                updateScore();
+            } else {
+                alert("Не хватает очков!");
+            }
         }
 
         Telegram.WebApp.ready();
     </script>
 </body>
 </html>
+
