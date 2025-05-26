@@ -1,126 +1,178 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <title>🔥 Tap Game</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <style>
-        body {
-            background: linear-gradient(to bottom right, #1e1e2f, #2e2e4f);
-            color: #fff;
-            font-family: 'Segoe UI', sans-serif;
-            text-align: center;
-            margin: 0;
-            padding: 0;
-        }
-        h1 {
-            margin-top: 30px;
-            font-size: 32px;
-        }
-        #score {
-            font-size: 28px;
-            margin: 20px 0;
-        }
-        button {
-            padding: 15px 30px;
-            font-size: 20px;
-            border: none;
-            border-radius: 12px;
-            background: #28a745;
-            color: white;
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }
-        button:hover {
-            background: #218838;
-        }
-        .store {
-            margin-top: 30px;
-            padding: 15px;
-            background: #222;
-            border-radius: 10px;
-            width: 90%;
-            max-width: 400px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        .upgrade {
-            margin: 10px 0;
-        }
-        .upgrade button {
-            background: #007bff;
-            font-size: 16px;
-        }
-    </style>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <meta charset="UTF-8">
+  <title>🔥 Tap Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: linear-gradient(to bottom right, #1e1e2f, #2e2e4f);
+      color: #fff;
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+
+    h1 {
+      margin-top: 30px;
+      font-size: 32px;
+    }
+
+    #score {
+      font-size: 28px;
+      margin: 20px 0;
+      transition: all 0.2s ease-in-out;
+    }
+
+    .tap-area {
+      font-size: 80px;
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.15s ease;
+      display: inline-block;
+    }
+
+    .tap-area:active {
+      transform: scale(1.2);
+    }
+
+    .tap-animate {
+      animation: pulse 0.3s ease;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.3); }
+      100% { transform: scale(1); }
+    }
+
+    .store {
+      margin-top: 30px;
+      padding: 15px;
+      background: #222;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .upgrade {
+      margin: 10px 0;
+    }
+
+    .upgrade button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      background: #007bff;
+      font-size: 16px;
+      color: white;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .upgrade button:hover {
+      background: #0069d9;
+    }
+
+    #rank-btn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      border-radius: 10px;
+      border: none;
+      background: #ffc107;
+      color: black;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-    <h1>🔥 Tap Game</h1>
-    <p id="score">Очки: 0</p>
-    <button onclick="tap()">Тапни меня!</button>
+  <h1>🔥 Tap Game</h1>
+  <p id="score">Очки: 0</p>
 
-    <div class="store">
-        <h2>🛒 Магазин</h2>
-        <div class="upgrade">
-            <p>×2 за тап (цена: <span id="costDouble">50</span>)</p>
-            <button onclick="buyDouble()">Купить</button>
-        </div>
-        <div class="upgrade">
-            <p>+5% авто (цена: <span id="costAuto">100</span>)</p>
-            <button onclick="buyAuto()">Купить</button>
-        </div>
+  <!-- 🍟 Кнопка в виде смайлика -->
+  <div class="tap-area" onclick="tap(this)">🍟</div>
+
+  <div class="store">
+    <h2>🛒 Магазин</h2>
+    <div class="upgrade">
+      <p>×2 за тап (цена: <span id="costDouble">50</span>)</p>
+      <button onclick="buyDouble()">Купить</button>
     </div>
+    <div class="upgrade">
+      <p>+5% авто (цена: <span id="costAuto">100</span>)</p>
+      <button onclick="buyAuto()">Купить</button>
+    </div>
+  </div>
 
-    <script>
-        let score = 0;
-        let tapPower = 1;
-        let autoActive = false;
-        let costDouble = 50;
-        let costAuto = 100;
+  <button id="rank-btn" onclick="showLeaderboard()">🏆 Рейтинг</button>
 
-        const scoreElem = document.getElementById("score");
-        const costDoubleElem = document.getElementById("costDouble");
-        const costAutoElem = document.getElementById("costAuto");
+  <script>
+    let score = 0;
+    let tapPower = 1;
+    let autoActive = false;
+    let costDouble = 50;
+    let costAuto = 100;
 
-        function updateScore() {
-            scoreElem.innerText = "Очки: " + Math.floor(score);
-        }
+    const scoreElem = document.getElementById("score");
+    const costDoubleElem = document.getElementById("costDouble");
+    const costAutoElem = document.getElementById("costAuto");
 
-        function tap() {
-            score += tapPower;
-            updateScore();
-        }
+    function updateScore() {
+      scoreElem.innerText = "Очки: " + Math.floor(score);
+      scoreElem.style.color = "#0f0";
+      setTimeout(() => {
+        scoreElem.style.color = "#fff";
+      }, 200);
+    }
 
-        function buyDouble() {
-            if (score >= costDouble) {
-                score -= costDouble;
-                tapPower *= 2;
-                costDouble = Math.floor(costDouble * 2);
-                costDoubleElem.innerText = costDouble;
-                updateScore();
-            } else {
-                alert("Не хватает очков!");
-            }
-        }
+    function tap(elem) {
+      score += tapPower;
+      elem.classList.add("tap-animate");
+      setTimeout(() => elem.classList.remove("tap-animate"), 300);
+      updateScore();
+    }
 
-        function buyAuto() {
-            if (autoActive) return alert("Уже активно!");
-            if (score >= costAuto) {
-                score -= costAuto;
-                autoActive = true;
-                setInterval(() => {
-                    score += score * 0.05; // +5%
-                    updateScore();
-                }, 3000);
-                costAutoElem.innerText = "—";
-                updateScore();
-            } else {
-                alert("Не хватает очков!");
-            }
-        }
+    function buyDouble() {
+      if (score >= costDouble) {
+        score -= costDouble;
+        tapPower *= 2;
+        costDouble = Math.floor(costDouble * 2);
+        costDoubleElem.innerText = costDouble;
+        updateScore();
+      } else {
+        alert("Не хватает очков!");
+      }
+    }
 
-        Telegram.WebApp.ready();
-    </script>
+    function buyAuto() {
+      if (autoActive) return alert("Уже активно!");
+      if (score >= costAuto) {
+        score -= costAuto;
+        autoActive = true;
+        setInterval(() => {
+          score += score * 0.05;
+          updateScore();
+        }, 3000);
+        costAutoElem.innerText = "—";
+        updateScore();
+      } else {
+        alert("Не хватает очков!");
+      }
+    }
+
+    function showLeaderboard() {
+      alert("🔜 Здесь будет рейтинг игроков (в разработке)");
+      // В будущем: откроется модальное окно или WebApp fetch на API /top
+    }
+
+    Telegram.WebApp.ready();
+  </script>
 </body>
 </html>
+
 

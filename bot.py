@@ -1,5 +1,5 @@
 TOKEN = "7650751450:AAEQam6YE-1e-mvedLjLhWVAmUQ79RSfzJc"
-URL = 'https://tg-game-e8uu.vercel.app/'
+URL = 'https://tg-game-mriz.vercel.app/'
 
 import os
 from aiogram import Bot, Dispatcher, types
