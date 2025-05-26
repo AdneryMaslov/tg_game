@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tap Game</title>
+    <style>
+        body { text-align: center; font-family: sans-serif; background: #222; color: #fff; }
+        button { font-size: 24px; padding: 20px; margin-top: 100px; }
+    </style>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+    <h1>👆 Tap Game</h1>
+    <p id="score">Score: 0</p>
+    <button onclick="tap()">Tap me!</button>
+
+    <script>
+        let score = 0;
+        function tap() {
+            score++;
+            document.getElementById("score").innerText = "Score: " + score;
+        }
+
+        Telegram.WebApp.ready();
+    </script>
+</body>
+</html>
